@@ -2,19 +2,19 @@ specVersion: 0.0.5
 schema:
   file: ./schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: Factory
     network: arbitrum-one
     source:
       abi: Factory
-      address: "0x8396a792510a402681812ece6ad3ff19261928ba"
+      address: '0x8396a792510a402681812ece6ad3ff19261928ba'
       startBlock: 65269032
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Lendgine
+        - Factory
       abis:
         - name: Factory
           file: ./abis/Factory.json
@@ -23,3 +23,42 @@ dataSources:
             uint256,address)
           handler: handleLendgineCreated
       file: ./src/factory.ts
+templates:
+  - name: Lendgine
+    kind: ethereum/contract
+    network: arbitrum-one
+    source:
+      abi: Lendgine
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/lendgine.ts
+      entities:
+        - Lendgine
+      abis:
+        - name: Lendgine
+          file: ./abis/Lendgine.json
+        - name: Pair
+          file: ./abis/Pair.json
+      eventHandlers:
+        - event: Mint(indexed address,uint256,uint256,uint256,indexed address)
+          handler: handleMint
+        - event: Burn(indexed address,uint256,uint256,uint256,indexed address)
+          handler: handleBurn
+        - event: Deposit(indexed address,uint256,uint256,indexed address)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,uint256,uint256,indexed address)
+          handler: handleWithdraw
+        - event: AccrueInterest(uint256,uint256,uint256)
+          handler: handleWithdraw
+        - event: AccruePositionInterest(indexed address,uint256)
+          handler: handleWithdraw
+        - event: Collect(indexed address,indexed address,uint256)
+          handler: handleWithdraw
+        - event: Mint(uint256,uint256,uint256)
+          handler: handlePairMint
+        - event: Burn(uint256,uint256,uint256,indexed address)
+          handler: handlePairBurn
+        - event: Swap(uint256,uint256,uint256,uint256,indexed address)
+          handler: handleSwap
